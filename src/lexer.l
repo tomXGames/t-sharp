@@ -1,81 +1,44 @@
-%option noyywrap
- 
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-    int lineno = 1; // initialize to 1
-    void print(char *token_type);
-    void yyerror();
+#include <string>
+#include "node.h"
+#include "parser.hpp"
+
+#define SAVE_TOKEN  yylval.string = new std::string(yytext, yyleng)
+#define TOKEN(t)    (yylval.token = t)
 %}
- 
-%x ML_COMMENT
- 
-alpha       [a-zA-Z]
-digit       [0-9]
-alnum       {alpha}|{digit}
-print       [ -~]
- 
-ID          {alpha}+{alnum}*
-INT         "0"|[0-9]{digit}*
-FLOAT       "0"|{digit}*"."{digit}+
-STRING      \"{print}*\"
- 
+
+%option noyywrap
+
 %%
- 
-"//".*                  { printf("Eat up comment at line %d\n", lineno); } 
- 
-"/*"                    { printf("Eat up comment from line %d ", lineno); BEGIN(ML_COMMENT); }
-<ML_COMMENT>"*/"        { printf("to line %d\n", lineno); BEGIN(INITIAL); }
-<ML_COMMENT>"\n"        { lineno += 1; }
- 
- 
-"INT"           { print("KEYWORD_INT"); }
-"FLOAT"         { print("KEYWORD_FLOAT"); }
-"STRING"        { print("KEYWORD_STRING"); }
-"IF"            { print("KEYWORD_IF"); }
-"ELSE"          { print("KEYWORD_ELSE"); }
- 
- 
-"+"             { print("ADDOP"); }
-"-"             { print("SUBOP"); }
-"*"             { print("MULOP"); }
-"/"             { print("DIVOP"); }
-"++"|"--"       { print("INCR"); }
- 
- 
-"("             { print("LPAREN"); }
-")"             { print("RPAREN"); }
-"."             { print("DOT"); }
-","             { print("COMMA"); }
-"="             { print("ASSIGN"); }
- 
- 
-{ID}            { print("ID"); }
-{INT}           { print("INT"); }
-{FLOAT}         { print("FLOAT"); }
-{STRING}        { print("STRING"); }
- 
- 
-"\n"            { lineno += 1; }
-[ \t\r\f]+          /* eat up whitespace */
- 
-.               { yyerror("Unrecognized character"); }
- 
+
+[ \t\n]					        ;
+"extern"                        return TOKEN(TEXTERN);
+"return"				        return TOKEN(TRETURN);
+[a-zA-Z_][a-zA-Z0-9_]*          SAVE_TOKEN; return TIDENTIFIER;
+[0-9]+\.[0-9]* 			        SAVE_TOKEN; return TDOUBLE;
+[0-9]+					        SAVE_TOKEN; return TINTEGER;
+
+"="						          return TOKEN(TEQUAL);
+"=="				          	return TOKEN(TCEQ);
+"!="			          		return TOKEN(TCNE);
+"<"				          		return TOKEN(TCLT);
+"<="	          				return TOKEN(TCLE);
+">"				          		return TOKEN(TCGT);
+">="					          return TOKEN(TCGE);
+
+"("	          					return TOKEN(TLPAREN);
+")"					          	return TOKEN(TRPAREN);
+"{"         						return TOKEN(TLBRACE);
+"}"					          	return TOKEN(TRBRACE);
+
+"."         						return TOKEN(TDOT);
+","				          		return TOKEN(TCOMMA);
+
+"+"				          		return TOKEN(TPLUS);
+"-"		          				return TOKEN(TMINUS);
+"*"		          				return TOKEN(TMUL);
+"/"				          		return TOKEN(TDIV);
+
+.                       printf("Unknown token!\n"); yyterminate();
+
 %%
- 
-void print(char *token_type){
-    printf("yytext: %s\ttoken: %s\tlineno: %d\n", yytext, token_type, lineno);
-}
- 
-void yyerror(char *message){
-    printf("Error: \"%s\" in line %d. Token = %s\n", message, lineno, yytext);
-    exit(1);
-}
- 
-int main(int argc, char *argv[]){
-    yyin = fopen(argv[1], "r");
-    yylex();
-    fclose(yyin);
-    return 0;
-}

@@ -1,0 +1,9 @@
+int do_math(int a) {
+  int x = a * 5
+  echo(a)
+  return x + 3
+}
+
+echo(1)
+int x = do_math(12)
+echo(x)

@@ -20,7 +20,7 @@ parser.cpp: parser.y
 	
 parser.hpp: parser.cpp
 
-tokens.cpp: tokens.l parser.hpp
+lexer.cpp: lexer.l parser.hpp
 	flex -o $@ $^
 
 %.o: %.cpp

@@ -41,7 +41,8 @@ pointer: pointer MULOP | MULOP ;
 
 array: array LBRACK ICONST RBRACK | LBRACK ICONST RBRACK ;
 
-statements: statements statement | statement;
+statements: statements statement 
+	| statement;
 
 statement:
 	if_statement | for_statement | while_statement | assigment |

@@ -1,5 +1,0 @@
-INT i, j
-i = 9
-j = 8
-j = j+i
-print(j)

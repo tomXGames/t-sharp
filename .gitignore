@@ -1,3 +1,2 @@
-src/parser.hpp
-src/parser.cpp
-src/lex.yy.c
+*.o
+.vscode
